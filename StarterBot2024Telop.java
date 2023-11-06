@@ -59,14 +59,13 @@ public class StarterBot2024Teleop extends OpMode
     private final double gripperClosedPosition = 1.0;
     private final double gripperOpenPosition = 0.0;
     private final double wristUpPosition = 1.0;
-    private final double wristDownPosition = 0.0;
+    private final double wristScoringPosition = 0.337;
 
     private final double planeLuanchPosition = 1.0;
     private double planeRestPosition = 0.0;
-    private boolean planeLuanch = false;
     
-    private final int armHomePosition = 0;
-    private final int armIntakePosition = 10;
+    private final int armHomePosition = 50;
+    private final int armIntakePosition = 48;
     private final int armScorePosition = 600;
     private final int armShutdownThreshold = 5;
 
@@ -130,14 +129,13 @@ public class StarterBot2024Teleop extends OpMode
         armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Set to Home Position
+        wrist.setPosition(wristUpPosition);
         armLeft.setTargetPosition(armHomePosition);
         armRight.setTargetPosition(armHomePosition);
         armLeft.setPower(1.0);
         armRight.setPower(1.0);
         armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        wrist.setPosition(wristUpPosition);
-
     }
 
     /*
@@ -190,32 +188,34 @@ public class StarterBot2024Teleop extends OpMode
             
             //preset buttons
             if (gamepad1.a) {
+                wrist.setPosition(wristUpPosition);
                 armLeft.setTargetPosition(armHomePosition);
                 armRight.setTargetPosition(armHomePosition);
-                armLeft.setPower(1.0);
-                armRight.setPower(1.0);
+                armLeft.setPower(0.4);
+                armRight.setPower(0.4);
                 armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                wrist.setPosition(wristUpPosition);
             }
             else if (gamepad1.b) {
-                armLeft.setTargetPosition(armIntakePosition);
+                
+                /*armLeft.setTargetPosition(armIntakePosition);
                 armRight.setTargetPosition(armIntakePosition);
-                armLeft.setPower(1.0);
-                armRight.setPower(1.0);
+                armLeft.setPower(0.4);
+                armRight.setPower(0.4);
                 armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                wrist.setPosition(wristDownPosition);
+                armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);*/
+                
+                wrist.setPosition(wristScoringPosition);
 
             }
             else if (gamepad1.y) {
+                wrist.setPosition(wristUpPosition);
                 armLeft.setTargetPosition(armScorePosition);
                 armRight.setTargetPosition(armScorePosition);
-                armLeft.setPower(1.0);
-                armRight.setPower(1.0);
+                armLeft.setPower(0.4);
+                armRight.setPower(0.4);
                 armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                wrist.setPosition(wristUpPosition);
             }
         } 
         
@@ -248,13 +248,11 @@ public class StarterBot2024Teleop extends OpMode
             gripper.setPosition(gripperClosedPosition);
         }
         
-        if (gamepad1.x && planeLuanch) {
+        if (gamepad1.dpad_up) {
             plane.setPosition(planeLuanchPosition);
-            planeLuanch = true;
         }
-        else if (gamepad1.x && planeLuanch == false) {
+        else if (gamepad1.dpad_down) {
             plane.setPosition(planeRestPosition);
-            planeLuanch = false;
         }
 
         telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -271,18 +269,8 @@ public class StarterBot2024Teleop extends OpMode
             ((Integer)armLeft.getTargetPosition()).toString() + 
             ", right = " +
             ((Integer)armRight.getTargetPosition()).toString());
-        telemetry.addData("Wrist Analog", wristPositionAnolog);
+        telemetry.addData("Wrist Position", wrist.getPosition());
     }
-
-    // b opens
-    // a closes
-    /* Variables I created :
-        - wristTurn
-        - wristPositionAnolog
-        - wristPosition
-    */ 
-        
-
 
     /*
      * Code to run ONCE after the driver hits STOP
