@@ -62,7 +62,7 @@ public class StarterBot2024Teleop extends OpMode
     private final double wristScoringPosition = 0.337;
 
     private final double planeLuanchPosition = 1.0;
-    private double planeRestPosition = 0.0;
+    private final double planeRestPosition = 0.0;
     
     private final int armHomePosition = 50;
     private final int armIntakePosition = 48;
