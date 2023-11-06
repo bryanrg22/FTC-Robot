@@ -121,10 +121,6 @@ public class StarterBot2024Teleop extends OpMode
         
         armLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armLeft.setTargetPosition(armHomePosition);
-        armRight.setTargetPosition(armHomePosition);
-        armLeft.setPower(1.0);
-        armRight.setPower(1.0);
         armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -132,8 +128,8 @@ public class StarterBot2024Teleop extends OpMode
         wrist.setPosition(wristUpPosition);
         armLeft.setTargetPosition(armHomePosition);
         armRight.setTargetPosition(armHomePosition);
-        armLeft.setPower(1.0);
-        armRight.setPower(1.0);
+        armLeft.setPower(0.4);
+        armRight.setPower(0.4);
         armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
