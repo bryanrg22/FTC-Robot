@@ -61,6 +61,9 @@ public class HelloWorld_EncoderAuton extends LinearOpMode {
     private DcMotor rightDrive = null;
     private Servo wrist = null;
 
+    private final double gripperOpenPosition = 0.6;
+    private final double wristUpPosition = 1.0;
+
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
@@ -77,7 +80,8 @@ public class HelloWorld_EncoderAuton extends LinearOpMode {
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
         leftDrive.setDirection(DcMotor.Direction.REVERSE);
         rightDrive.setDirection(DcMotor.Direction.FORWARD);
-        wrist.setPosition(1);
+        wrist.setPosition(wristUpPosition);
+        gripper.setPosition(gripperOpenPosition);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
