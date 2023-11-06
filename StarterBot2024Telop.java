@@ -175,8 +175,8 @@ public class StarterBot2024Teleop extends OpMode
             if (manualMode) {
                 armLeft.setTargetPosition(armLeft.getCurrentPosition());
                 armRight.setTargetPosition(armRight.getCurrentPosition());
-                armLeft.setPower(1.0);
-                armRight.setPower(1.0);
+                armLeft.setPower(0.4);
+                armRight.setPower(0.4);
                 armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 manualMode = false;
