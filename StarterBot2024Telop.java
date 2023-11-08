@@ -145,14 +145,17 @@ public class StarterBot2024Teleop extends OpMode
         double manualArmPower;
         double wristPositionAnolog;
         
-        //DRIVE
+        //DRIVE & WRIST
         double drive = -gamepad1.left_stick_y;
         double turn  =  gamepad1.right_stick_x;
         double wristTurn  =  -gamepad1.right_stick_y;
+
+        // INITIALIZE RANGES
         leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
         rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
         wristPositionAnolog = Range.clip(wristTurn, -1.0, 1.0) ;
 
+        // SEND TO POSITIONS GIVEN BY JOYSTICKS
         leftDrive.setPower(leftPower);
         rightDrive.setPower(rightPower);
         wrist.setPosition(wrist.getPosition() + wristPositionAnolog * 0.01);
@@ -173,6 +176,7 @@ public class StarterBot2024Teleop extends OpMode
             armRight.setPower(manualArmPower);
         }
         else {
+            // Arms will only move lower if the postion of the arms is greater than the armHomePosition
             if (manualMode &&  (armLeft.getPosition() > armHomePosition && armRight.getPosition() > armHomePosition)) {
                     armLeft.setTargetPosition(armLeft.getCurrentPosition());
                     armRight.setTargetPosition(armRight.getCurrentPosition());
@@ -236,10 +240,11 @@ public class StarterBot2024Teleop extends OpMode
             gripper.setPosition(gripperClosedPosition);
         }
         
-        if (gamepad1.dpad_up) {
+        // PLANE
+        if (gamepad1.dpad_right) {
             plane.setPosition(planeLuanchPosition);
         }
-        else if (gamepad1.dpad_down) {
+        else if (gamepad1.dpad_left) {
             plane.setPosition(planeRestPosition);
         }
 
