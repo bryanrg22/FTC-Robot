@@ -233,10 +233,11 @@ public class StarterBot2024Teleop extends OpMode
         }
 
          //GRIPPER
-        if (gamepad1.right_bumper && (armLeft.getPosition() > armHomePosition && armRight.getPosition() > armHomePosition)) {
+        // Will only close grippers if position of arms is greater than or equal to armHomePosition
+        if (gamepad1.right_bumper && (armLeft.getPosition() >= armHomePosition && armRight.getPosition() >= armHomePosition)) {
             gripper.setPosition(gripperOpenPosition);
         }
-        if (gamepad1.left_bumper && (armLeft.getPosition() > armHomePosition && armRight.getPosition() > armHomePosition)) {
+        if (gamepad1.left_bumper && (armLeft.getPosition() >= armHomePosition && armRight.getPosition() >= armHomePosition)) {
             gripper.setPosition(gripperClosedPosition);
         }
         
