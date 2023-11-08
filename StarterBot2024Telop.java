@@ -173,14 +173,14 @@ public class StarterBot2024Teleop extends OpMode
             armRight.setPower(manualArmPower);
         }
         else {
-            if (manualMode) {
-                armLeft.setTargetPosition(armLeft.getCurrentPosition());
-                armRight.setTargetPosition(armRight.getCurrentPosition());
-                armLeft.setPower(0.4);
-                armRight.setPower(0.4);
-                armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                manualMode = false;
+            if (manualMode &&  (armLeft.getPosition() > armHomePosition && armRight.getPosition() > armHomePosition)) {
+                    armLeft.setTargetPosition(armLeft.getCurrentPosition());
+                    armRight.setTargetPosition(armRight.getCurrentPosition());
+                    armLeft.setPower(0.4);
+                    armRight.setPower(0.4);
+                    armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    manualMode = false;
             }
             
             //preset buttons
@@ -194,16 +194,7 @@ public class StarterBot2024Teleop extends OpMode
                 armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             }
             else if (gamepad1.b) {
-                
-                /*armLeft.setTargetPosition(armIntakePosition);
-                armRight.setTargetPosition(armIntakePosition);
-                armLeft.setPower(0.4);
-                armRight.setPower(0.4);
-                armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);*/
-                
                 wrist.setPosition(wristScoringPosition);
-
             }
             else if (gamepad1.y) {
                 wrist.setPosition(wristUpPosition);
