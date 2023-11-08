@@ -57,7 +57,7 @@ public class StarterBot2024Teleop extends OpMode
     private final double armManualDeadband = 0.03;
     
     private final double gripperClosedPosition = 1.0;
-    private final double gripperOpenPosition = 0.0;
+    private final double gripperOpenPosition = 0.6;
     private final double wristUpPosition = 1.0;
     private final double wristScoringPosition = 0.337;
 
