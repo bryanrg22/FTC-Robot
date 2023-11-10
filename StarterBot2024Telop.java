@@ -56,8 +56,8 @@ public class StarterBot2024Teleop extends OpMode
     
     private final double armManualDeadband = 0.03;
     
-    private final double gripperClosedPosition = 1.0;
-    private final double gripperOpenPosition = 0.6;
+    private final double gripperClosedPosition = 0.0;
+    private final double gripperOpenPosition = 0.3;
     private final double wristUpPosition = 1.0;
     private final double wristScoringPosition = 0.337;
 
@@ -177,7 +177,9 @@ public class StarterBot2024Teleop extends OpMode
         }
         else {
             // Arms will only move lower if the postion of the arms is greater than the armHomePosition
-            if (manualMode &&  (armLeft.getPosition() > armHomePosition && armRight.getPosition() > armHomePosition)) {
+                // if (manualMode)
+            // if (manualMode &&  ((armLeft.getCurrentPosition() > armHomePosition) && (armRight.getCurrentPosition() > armHomePosition)))
+            if (manualMode) {
                     armLeft.setTargetPosition(armLeft.getCurrentPosition());
                     armRight.setTargetPosition(armRight.getCurrentPosition());
                     armLeft.setPower(0.4);
@@ -234,10 +236,14 @@ public class StarterBot2024Teleop extends OpMode
 
          //GRIPPER
         // Will only close grippers if position of arms is greater than or equal to armHomePosition
-        if (gamepad1.right_bumper && (armLeft.getPosition() >= armHomePosition && armRight.getPosition() >= armHomePosition)) {
+            //  if (gamepad1.right_bumper)
+        //if (gamepad1.right_bumper &&  ((armLeft.getCurrentPosition() > armHomePosition) && (armRight.getCurrentPosition() > armHomePosition)))
+        if (gamepad1.right_bumper) {
             gripper.setPosition(gripperOpenPosition);
         }
-        if (gamepad1.left_bumper && (armLeft.getPosition() >= armHomePosition && armRight.getPosition() >= armHomePosition)) {
+            // if (gamepad1.left_bumper)
+        // if (gamepad1.left_bumper &&  ((armLeft.getCurrentPosition() > armHomePosition) && (armRight.getCurrentPosition() > armHomePosition))) 
+        if (gamepad1.left_bumper) {
             gripper.setPosition(gripperClosedPosition);
         }
         
