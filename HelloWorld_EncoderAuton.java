@@ -88,8 +88,37 @@ public class HelloWorld_EncoderAuton extends LinearOpMode {
         while (opModeIsActive()) {
 
             // We can program scoring and after resting in the red square position
-            
-            while (num < 30000){
+                        /* 
+                        // Move Forward
+                        while (num < 30000){
+                        
+                            leftDrive.setPower(-0.5);
+                            rightDrive.setPower(-0.5);
+                
+                            // Show the elapsed game time and wheel power.
+                            telemetry.addData("Status", "Run Time: " + runtime.toString());
+                            telemetry.update();
+                            num++;
+                        }
+                        leftDrive.setPower(0);
+                        rightDrive.setPower(0);
+                        
+                        // Turn to face away from scoring board
+
+                        // Arm and wrist scoring position
+
+                        // Move Towards Board
+
+                        // Score
+
+                        // Arm and Home Rest Position
+
+                        // Go to red square area   
+                        
+                        */
+
+        // Drives back to red square area    
+        while (num < 35000){
             
                 leftDrive.setPower(0.5);
                 rightDrive.setPower(0.5);
