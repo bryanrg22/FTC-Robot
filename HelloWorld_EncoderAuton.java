@@ -59,10 +59,7 @@ public class HelloWorld_EncoderAuton extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftDrive = null;
     private DcMotor rightDrive = null;
-    private Servo wrist = null;
-
-    private final double gripperOpenPosition = 0.6;
-    private final double wristUpPosition = 1.0;
+    
 
     @Override
     public void runOpMode() {
@@ -80,22 +77,28 @@ public class HelloWorld_EncoderAuton extends LinearOpMode {
         // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
         leftDrive.setDirection(DcMotor.Direction.REVERSE);
         rightDrive.setDirection(DcMotor.Direction.FORWARD);
-        wrist.setPosition(wristUpPosition);
-        gripper.setPosition(gripperOpenPosition);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
+        
+        int num = 0;
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            leftDrive.setPower(-0.5);
-            rightDrive.setPower(-0.5);
-
-            // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.update();
+            while (num < 30000){
+            
+                leftDrive.setPower(0.5);
+                rightDrive.setPower(0.5);
+    
+                // Show the elapsed game time and wheel power.
+                telemetry.addData("Status", "Run Time: " + runtime.toString());
+                telemetry.update();
+                num++;
+            }
+            leftDrive.setPower(0);
+            rightDrive.setPower(0);
         }
     }
 }
