@@ -87,6 +87,8 @@ public class HelloWorld_EncoderAuton extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
+            // We can program scoring and after resting in the red square position
+            
             while (num < 30000){
             
                 leftDrive.setPower(0.5);

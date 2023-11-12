@@ -272,6 +272,9 @@ public class StarterBot2024Teleop extends OpMode
         telemetry.addData("Wrist Position", wrist.getPosition());
     }
 
+
+    // Add scooper to the robot
+
     /*
      * Code to run ONCE after the driver hits STOP
      */
