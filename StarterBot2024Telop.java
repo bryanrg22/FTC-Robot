@@ -58,7 +58,7 @@ public class StarterBot2024Teleop extends OpMode
     
     private final double gripperClosedPosition = 0.0;
     private final double gripperOpenPosition = 0.3;
-    private final double wristUpPosition = 1;
+    private final double wristUpPosition = 1.0;
     private final double wristScoringPosition = 0.337;
 
     private final double planeLuanchPosition = 1.0;
