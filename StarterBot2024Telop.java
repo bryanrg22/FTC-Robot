@@ -58,13 +58,13 @@ public class StarterBot2024Teleop extends OpMode
     
     private final double gripperClosedPosition = 0.0;
     private final double gripperOpenPosition = 0.3;
-    private final double wristUpPosition = 1.0;
-    private final double wristScoringPosition = 0.337;
+    private final double wristUpPosition = 1;
+    private final double wristScoringPosition = 0.267;
 
     private final double planeLuanchPosition = 1.0;
     private final double planeRestPosition = 0.0;
     
-    private final int armHomePosition = 50;
+    private final int armHomePosition = 14;
     private final int armIntakePosition = 48;
     private final int armScorePosition = 600;
     private final int armShutdownThreshold = 5;
@@ -126,13 +126,14 @@ public class StarterBot2024Teleop extends OpMode
 
         // Set to Home Position
         wrist.setPosition(wristUpPosition);
+        gripper.setPosition(gripperOpenPosition);
+        
         armLeft.setTargetPosition(armHomePosition);
         armRight.setTargetPosition(armHomePosition);
         armLeft.setPower(0.4);
         armRight.setPower(0.4);
         armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        gripper.setPosition(gripperOpenPosition);
     }
 
     /*
@@ -271,9 +272,6 @@ public class StarterBot2024Teleop extends OpMode
             ((Integer)armRight.getTargetPosition()).toString());
         telemetry.addData("Wrist Position", wrist.getPosition());
     }
-
-
-    // Add scooper to the robot
 
     /*
      * Code to run ONCE after the driver hits STOP
