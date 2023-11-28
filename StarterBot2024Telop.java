@@ -65,8 +65,7 @@ public class StarterBot2024Teleop extends OpMode
     private final double planeRestPosition = 0.0;
     
     private final int armHomePosition = 14;
-    private final int armIntakePosition = 48;
-    private final int armScorePosition = 600;
+    private final int armScorePosition = 564;
     private final int armShutdownThreshold = 5;
 
     /*
@@ -254,6 +253,18 @@ public class StarterBot2024Teleop extends OpMode
         }
         else if (gamepad1.dpad_left) {
             plane.setPosition(planeRestPosition);
+        }
+
+        // Hang on the pole
+        if (gamepad1.dpad_up) {
+            while(true) {
+                armLeft.setTargetPosition(armHomePosition);
+                armRight.setTargetPosition(armHomePosition);
+                armLeft.setPower(0.4);
+                armRight.setPower(0.4);
+                armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            }
         }
 
         telemetry.addData("Status", "Run Time: " + runtime.toString());
