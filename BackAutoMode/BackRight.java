@@ -52,13 +52,24 @@ import com.qualcomm.robotcore.util.Range;
  */
 @Autonomous(name="Basic: Linear OpMode", group="Linear OpMode")
 
-public class BackLeft extends LinearOpMode {
+public class BackRight extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftDrive = null;
     private DcMotor rightDrive = null;
+    private DcMotor armLeft = null;
+    private DcMotor armRight = null;
+    private Servo gripper = null;
+    private Servo wrist = null;
     
+    // Declare Variables
+    private final double gripperClosedPosition = 0.0;
+    private final double gripperOpenPosition = 0.3;
+    private final double wristUpPosition = 1;
+    private final double wristScoringPosition = 0.267;
+    private final int armHomePosition = 14;
+    private final int armScorePosition = 564;
 
     @Override
     public void runOpMode() {
@@ -67,9 +78,26 @@ public class BackLeft extends LinearOpMode {
 
         leftDrive  = hardwareMap.get(DcMotor.class, "leftDrive");
         rightDrive = hardwareMap.get(DcMotor.class, "rightDrive");
+        armLeft  = hardwareMap.get(DcMotor.class, "armLeft");
+        armRight = hardwareMap.get(DcMotor.class, "armRight");
+        gripper = hardwareMap.get(Servo.class, "gripper");
+        wrist = hardwareMap.get(Servo.class, "wrist");
 
         leftDrive.setDirection(DcMotor.Direction.REVERSE);
         rightDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        
+        armLeft.setDirection(DcMotor.Direction.FORWARD);
+        armRight.setDirection(DcMotor.Direction.REVERSE);
+        armLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        armLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        armRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        armLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        armRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        armLeft.setPower(0.0);
+        armRight.setPower(0.0);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();

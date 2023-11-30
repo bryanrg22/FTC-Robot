@@ -51,19 +51,16 @@ public class StarterBot2024Teleop extends OpMode
     private Servo wrist = null;
     private Servo plane = null;
     
+    // Declare Variables
     private boolean manualMode = false;
     private double armSetpoint = 0.0;
-    
     private final double armManualDeadband = 0.03;
-    
     private final double gripperClosedPosition = 0.0;
     private final double gripperOpenPosition = 0.3;
     private final double wristUpPosition = 1;
     private final double wristScoringPosition = 0.267;
-
     private final double planeLuanchPosition = 1.0;
     private final double planeRestPosition = 0.0;
-    
     private final int armHomePosition = 14;
     private final int armScorePosition = 564;
     private final int armShutdownThreshold = 5;
@@ -251,14 +248,19 @@ public class StarterBot2024Teleop extends OpMode
         }
 
         // Hang on the pole
+        boolean hanging = false;
         if (gamepad1.dpad_up) {
-            while(true) {
+            hanging = true;
+            while(hanging) {
                 armLeft.setTargetPosition(armHomePosition);
                 armRight.setTargetPosition(armHomePosition);
                 armLeft.setPower(0.4);
                 armRight.setPower(0.4);
                 armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                if (gamepad1.dpad_down) {
+                    hanging = false;
+                }
             }
         }
 
