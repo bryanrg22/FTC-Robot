@@ -52,7 +52,7 @@ import com.qualcomm.robotcore.util.Range;
  */
 @Autonomous(name="Basic: Linear OpMode", group="Linear OpMode")
 
-public class BackLeft extends LinearOpMode {
+public class FrontLeft extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -133,12 +133,26 @@ public class BackLeft extends LinearOpMode {
 
             // Open the grippers
             gripper.setPosition(gripperOpenPosition);
+
+            // Back up, turn 90 degress, and back up
+            while (num < 20000) {
+            
+                leftDrive.setPower(0.3);
+                rightDrive.setPower(0.5);
+    
+            }
+            leftDrive.setPower(0);
+            rightDrive.setPower(0);
+
+
+
             */
 
             // Show the elapsed game time and wheel power.
                 telemetry.addData("Status", "Run Time: " + runtime.toString());
                 telemetry.update();
                 num++;
+
         }
     }
 }

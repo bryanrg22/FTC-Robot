@@ -258,6 +258,7 @@ public class StarterBot2024Teleop extends OpMode
                 armRight.setPower(0.4);
                 armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                
                 if (gamepad1.dpad_down) {
                     hanging = false;
                 }
