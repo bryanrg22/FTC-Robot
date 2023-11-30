@@ -286,6 +286,7 @@ public class StarterBot2024Teleop extends OpMode
      */
     @Override
     public void stop() {
+        hanging = false;
     }
 
 } 
