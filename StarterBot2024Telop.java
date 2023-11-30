@@ -64,6 +64,7 @@ public class StarterBot2024Teleop extends OpMode
     private final int armHomePosition = 14;
     private final int armScorePosition = 564;
     private final int armShutdownThreshold = 5;
+    boolean hanging = false;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -248,7 +249,6 @@ public class StarterBot2024Teleop extends OpMode
         }
 
         // Hang on the pole
-        boolean hanging = false;
         if (gamepad1.dpad_up) {
             hanging = true;
             while(hanging) {
