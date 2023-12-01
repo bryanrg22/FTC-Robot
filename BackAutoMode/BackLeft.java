@@ -110,7 +110,7 @@ public class BackLeft extends LinearOpMode {
 
             gripper.setPosition(gripperClosedPosition);
 
-            while (num < 20000){
+            while (num < 10000){
             
                 leftDrive.setPower(-0.5);
                 rightDrive.setPower(-0.3);
