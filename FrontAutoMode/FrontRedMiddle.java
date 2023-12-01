@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -50,9 +51,9 @@ import com.qualcomm.robotcore.util.Range;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  */
-@Autonomous(name="Basic: Linear OpMode", group="Linear OpMode")
+@Autonomous(name="FrontRedMiddle", group="Linear OpMode")
 
-public class FrontLeft extends LinearOpMode {
+public class FrontRedMiddle extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -70,6 +71,7 @@ public class FrontLeft extends LinearOpMode {
     private final double wristScoringPosition = 0.267;
     private final int armHomePosition = 14;
     private final int armScorePosition = 564;
+    private final int time = 0;
 
     @Override
     public void runOpMode() {
@@ -102,57 +104,101 @@ public class FrontLeft extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
-        
-        int num = 0;
+        int tight = 0;
+        int wristdown = 0;
+        int arm = 0;
+        int first_run = 0;
+        int second_run = 0;
+        int letgo = 0;
+        int turn = 0;
+        int reverse = 0;
+        int goForward = 0;
+        int turnRight = 0;
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
-            gripper.setPosition(gripperClosedPosition);
-
-            while (num < 20000){
             
-                leftDrive.setPower(-0.5);
-                rightDrive.setPower(-0.3);
-    
+            while (tight < 50000) {
+                if (tight == 0) {
+                    gripper.setPosition(gripperOpenPosition);
+                }
+                tight++;
+            }
+            
+            while (arm < 10000){
+                
+                if (arm == 0) {
+                    
+                    armLeft.setTargetPosition(armHomePosition);
+                    armRight.setTargetPosition(armHomePosition);
+                    armLeft.setPower(0.4);
+                    armRight.setPower(0.4);
+                    armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                }
+                arm++;
+            }
+            
+            while (wristdown < 20000) {
+                if (wristdown == 0) {
+                    wrist.setPosition(wristScoringPosition);
+                }
+                wristdown++;
+            }
+            
+            sleep(1000);
+            while (second_run < 105000){
+            
+                leftDrive.setPower(-0.55);
+                rightDrive.setPower(-0.4);
+                second_run++;
             }
             leftDrive.setPower(0);
             rightDrive.setPower(0);
-
-            /*
-            // bring down arm to scoring position
-            armLeft.setTargetPosition(armHomePosition);
-            armRight.setTargetPosition(armHomePosition);
-            armLeft.setPower(0.4);
-            armRight.setPower(0.4);
-            armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             
-            // Lower Wrist to scoring position
-            wrist.setPosition(wristScoringPosition);
-
-            // Open the grippers
-            gripper.setPosition(gripperOpenPosition);
-
-            // Back up, turn 90 degress, and back up
-            while (num < 20000) {
+            while (letgo < 50000) {
+                
+                if (letgo == 0) {
+                    gripper.setPosition(gripperClosedPosition);
+                }
+                letgo++;
+            }
             
-                leftDrive.setPower(0.3);
-                rightDrive.setPower(0.5);
-    
+            while (reverse < 90000) {
+                rightDrive.setPower(0.4);
+                leftDrive.setPower(0.4);
+                reverse++;
+            }
+            rightDrive.setPower(0);
+            leftDrive.setPower(0);
+            
+            while (turnRight < 45000) {
+                rightDrive.setPower(0.6);
+                leftDrive.setPower(-0.6);
+                turnRight++;
+            }
+            rightDrive.setPower(0);
+            leftDrive.setPower(0);
+            
+            wrist.setPosition(wristUpPosition);
+            
+            sleep(1000);
+            
+            while (goForward < 70000){
+            
+                leftDrive.setPower(-0.85);
+                rightDrive.setPower(-0.7);
+                goForward++;
             }
             leftDrive.setPower(0);
             rightDrive.setPower(0);
-
-
-
-            */
+            
+            
+                
+        }
 
             // Show the elapsed game time and wheel power.
                 telemetry.addData("Status", "Run Time: " + runtime.toString());
                 telemetry.update();
-                num++;
-
-        }
     }
 }
