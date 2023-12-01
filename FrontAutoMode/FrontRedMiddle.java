@@ -65,13 +65,23 @@ public class FrontRedMiddle extends LinearOpMode {
     private Servo wrist = null;
     
     // Declare Variables
-    private final double gripperClosedPosition = 0.0;
-    private final double gripperOpenPosition = 0.3;
+    private final double gripperClosedPosition = 0.3;
+    private final double gripperOpenPosition = 0.0;
     private final double wristUpPosition = 1;
     private final double wristScoringPosition = 0.267;
     private final int armHomePosition = 14;
     private final int armScorePosition = 564;
     private final int time = 0;
+
+    int closeGrip = 0;
+    int arm = 0;
+    int wristdown = 0;
+    int moveToTape = 0;
+    int dropPiece = 0;
+    int turn = 0;
+    int reverse = 0;
+    int goForward = 0;
+    int turnRight = 0;
 
     @Override
     public void runOpMode() {
@@ -104,27 +114,19 @@ public class FrontRedMiddle extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
-        int tight = 0;
-        int wristdown = 0;
-        int arm = 0;
-        int first_run = 0;
-        int second_run = 0;
-        int letgo = 0;
-        int turn = 0;
-        int reverse = 0;
-        int goForward = 0;
-        int turnRight = 0;
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             
-            while (tight < 50000) {
-                if (tight == 0) {
-                    gripper.setPosition(gripperOpenPosition);
+            // Close grippers to hold 
+            while (closeGrip < 50000) {
+                if (closeGrip == 0) {
+                    gripper.setPosition(gripperClosedPosition);
                 }
-                tight++;
+                closeGrip++;
             }
             
+            // Place arm in home position
             while (arm < 10000){
                 
                 if (arm == 0) {
@@ -139,31 +141,36 @@ public class FrontRedMiddle extends LinearOpMode {
                 arm++;
             }
             
+            // Place wrist down to scoring position
             while (wristdown < 20000) {
                 if (wristdown == 0) {
                     wrist.setPosition(wristScoringPosition);
                 }
                 wristdown++;
             }
-            
             sleep(1000);
-            while (second_run < 105000){
+
+            // Move forward to Tape
+            while (moveToTape < 105000){
             
                 leftDrive.setPower(-0.55);
                 rightDrive.setPower(-0.4);
-                second_run++;
+                moveToTape++;
             }
             leftDrive.setPower(0);
             rightDrive.setPower(0);
             
-            while (letgo < 50000) {
+            //Drop the Piece on Tape
+            while (dropPiece < 50000) {
                 
-                if (letgo == 0) {
-                    gripper.setPosition(gripperClosedPosition);
+                if (dropPiece == 0) {
+                    
+                    gripper.setPosition(gripperOpenPosition);
                 }
-                letgo++;
+                dropPiece++;
             }
             
+            // Reverse Back
             while (reverse < 90000) {
                 rightDrive.setPower(0.4);
                 leftDrive.setPower(0.4);
@@ -172,6 +179,7 @@ public class FrontRedMiddle extends LinearOpMode {
             rightDrive.setPower(0);
             leftDrive.setPower(0);
             
+            // Turn to face square area
             while (turnRight < 45000) {
                 rightDrive.setPower(0.6);
                 leftDrive.setPower(-0.6);
@@ -180,10 +188,11 @@ public class FrontRedMiddle extends LinearOpMode {
             rightDrive.setPower(0);
             leftDrive.setPower(0);
             
+            // Lift the wrist 
             wrist.setPosition(wristUpPosition);
-            
             sleep(1000);
             
+            // Go to sqaure area
             while (goForward < 70000){
             
                 leftDrive.setPower(-0.85);
@@ -193,12 +202,9 @@ public class FrontRedMiddle extends LinearOpMode {
             leftDrive.setPower(0);
             rightDrive.setPower(0);
             
-            
-                
         }
-
             // Show the elapsed game time and wheel power.
-                telemetry.addData("Status", "Run Time: " + runtime.toString());
-                telemetry.update();
+            telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.update();
     }
 }
