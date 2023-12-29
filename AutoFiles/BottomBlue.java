@@ -11,6 +11,9 @@ import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.BlueAztec;
+
+
 /*
  * This OpMode illustrates an autonomous opmode using simple Odometry
  * All robot functions are performed by an external "Robot" class that manages all hardware interactions.
@@ -24,6 +27,9 @@ public class BottomBlue extends LinearOpMode
     // get an instance of the "Robot" class.
     private Robot1 robot = new Robot1(this);
     private ElapsedTime runtime = new ElapsedTime();
+    private boolean leftObject = false;
+    private boolean middleObject = false;
+    private boolean rightObject = false;
     
     
     @Override public void runOpMode()
@@ -49,13 +55,47 @@ public class BottomBlue extends LinearOpMode
         if (opModeIsActive())
         {
             runtime.reset();
+
             
-            for (int i = 0; i < 3000000; i++){
-                
-                robot.driveStraight(-0.5);
+            
+            /* 
+
+
+            // Use camera to detect where the object is
+            if (x < ) {
+                leftObject = true;
+            }
+            else if (num < x < num) {
+                middleObject = true;
+            }
+            else if (x > num) {
+                rightObject = true;
             }
 
-            // Drive the path again without turning.
+
+            // Run Custom pathway
+            if (leftObject) {
+                // Go to left object
+
+                // Then go to middle path
+
+            }
+            else if (middleObject) {
+                // Go to middle object
+
+                // Then go to middle path
+            }
+            else if (rightObject) {   
+                // Go to right object 
+
+                // Then go to middle path
+            }
+
+            // Drive to box
+            
+
+            */
+
             
         }
     }

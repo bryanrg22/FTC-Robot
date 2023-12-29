@@ -38,6 +38,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
+
 import java.util.List;
 
 /*
@@ -194,5 +195,17 @@ public class BlueAztec extends LinearOpMode {
         }   // end for() loop
 
     }   // end method telemetryTfod()
+
+    private double get_x() {
+        return (recognition.getLeft() + recognition.getRight()) / 2;
+    }
+
+    private double get_y() {
+        return (recognition.getTop()  + recognition.getBottom()) / 2;
+    }
+
+    private int math(int a, int b) {
+        return a + b;
+    }
 
 }   // end class
