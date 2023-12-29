@@ -30,6 +30,14 @@ public class Robot1 {
     private final double ODOM_INCHES_PER_COUNT   = 0.002969;   //  GoBilda Odometry Pod (1/226.8)
     private final boolean INVERT_DRIVE_ODOMETRY  = true;       //  When driving FORWARD, the odometry value MUST increase.  If it does not, flip the value of this constant.
     private final boolean INVERT_STRAFE_ODOMETRY = false;       //  When strafing to the LEFT, the odometry value MUST increase.  If it does not, flip the value of this constant.
+    
+    private final double wristUpPosition = 1.0;
+    private final int armHomePosition = 14;
+    private final double armManualDeadband = 0.03;
+    private final int armScorePosition = 564;
+    private final double wristScoringPosition = 0.267;
+    private boolean manualMode = false;
+    
 
     private static final double DRIVE_GAIN          = 0.03;    // Strength of axial position control
     private static final double DRIVE_ACCEL         = 2.0;     // Acceleration limit.  Percent Power change per second.  1.0 = 0-100% power in 1 sec.
@@ -48,6 +56,7 @@ public class Robot1 {
     private static final double YAW_TOLERANCE       = 1.0;     // Controller is is "inPosition" if position error is < +/- this amount
     private static final double YAW_DEADBAND        = 0.25;    // Error less than this causes zero output.  Must be smaller than DRIVE_TOLERANCE
     private static final double YAW_MAX_AUTO        = 0.6;     // "default" Maximum Yaw power limit during autonomous
+
 
     // Public Members
     public double driveDistance     = 0; // scaled axial distance (+ = forward)
@@ -69,13 +78,12 @@ public class Robot1 {
 
     private DcMotor driveEncoder;       //  the Axial (front/back) Odometry Module (may overlap with motor, or may not)
     private DcMotor strafeEncoder;      //  the Lateral (left/right) Odometry Module (may overlap with motor, or may not)
-    
-    //private DcMotor armLeft ;
-    //private DcMotor armRight ;
-    //private Servo gripper ;
-    //private Servo wrist ;
-    //private Servo plane ;
-    
+
+    private DcMotor armLeft;
+    private DcMotor armRight;
+    private Servo wrist;
+    private Servo leftGrip;
+    private Servo rightGrip;
 
     private LinearOpMode myOpMode;
     private IMU imu;
@@ -108,32 +116,22 @@ public class Robot1 {
         // motor/device must match the names assigned during the robot configuration.
 
         // !!!  Set the drive direction to ensure positive power drives each wheel forward.
-        leftFrontDrive  = setupDriveMotor("frontLeft", DcMotor.Direction.REVERSE);
-        rightFrontDrive = setupDriveMotor("frontRight", DcMotor.Direction.FORWARD);
-        leftBackDrive  = setupDriveMotor( "backLeft", DcMotor.Direction.REVERSE);
-        rightBackDrive = setupDriveMotor( "backRight",DcMotor.Direction.FORWARD);
+        leftFrontDrive  = setupMotor("frontLeft", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFrontDrive = setupMotor("frontRight", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBackDrive  = setupMotor( "backLeft", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBackDrive = setupMotor( "backRight",DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_USING_ENCODER);
+        armLeft = setupMotor("armLeft", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        armRight = setupMotor("armRight", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         imu = myOpMode.hardwareMap.get(IMU.class, "imu");
 
         //  Connect to the encoder channels using the name of that channel.
         driveEncoder = myOpMode.hardwareMap.get(DcMotor.class, "driveEncoder");
         strafeEncoder = myOpMode.hardwareMap.get(DcMotor.class, "strafeEncoder");
-        
-        //armLeft  = myOpMode.hardwareMap.get(DcMotor.class, "armLeft");
-        //armRight = myOpMode.hardwareMap.get(DcMotor.class, "armRight");
-        //gripper = myOpMode.hardwareMap.get(Servo.class, "gripper");
-        //wrist = myOpMode.hardwareMap.get(Servo.class, "wrist");
-        //plane = myOpMode.hardwareMap.get(Servo.class, "plane");
 
-        //armLeft.setDirection(DcMotor.Direction.FORWARD);
-        //armRight.setDirection(DcMotor.Direction.REVERSE);
-        //armLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //armRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //armLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //armRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //armLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        //armRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        //armLeft.setPower(0.0);
-        //armRight.setPower(0.0);
+        // Set the wrist and grippers.
+        wrist = myOpMode.hardwareMap.get(Servo.class, "wrist");
+        rightGrip = myOpMode.hardwareMap.get(Servo.class, "rightGrip");
+        leftGrip = myOpMode.hardwareMap.get(Servo.class, "leftGrip");
 
 
         // Set all hubs to use the AUTO Bulk Caching mode for faster encoder reads
@@ -161,12 +159,12 @@ public class Robot1 {
      * @param direction   Desired direction to make the wheel run FORWARD with positive power input
      * @return the DcMotor object
      */
-    private DcMotor setupDriveMotor(String deviceName, DcMotor.Direction direction) {
+    private DcMotor setupMotor(String deviceName, DcMotor.Direction direction, DcMotor.RunMode mode) {
         DcMotor aMotor = myOpMode.hardwareMap.get(DcMotor.class, deviceName);
         aMotor.setDirection(direction);
         aMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  // Reset Encoders to zero
         aMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        aMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);  // Requires motor encoder cables to be hooked up.
+        aMotor.setMode(mode);  // Requires motor encoder cables to be hooked up.
         return aMotor;
     }
 
@@ -326,6 +324,98 @@ public class Robot1 {
         }
     }
 
+
+
+
+    public void pickUpPosition() {
+        wrist.setPosition(0.05);
+        armLeft.setTargetPosition(0);
+        armRight.setTargetPosition(0);
+        armLeft.setPower(0.4);
+        armRight.setPower(0.4);
+        armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public void travelPosition() {
+        wrist.setPosition(0.05);
+        armLeft.setTargetPosition(33);
+        armRight.setTargetPosition(33);
+        armLeft.setPower(0.4);
+        armRight.setPower(0.4);
+        armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+     public void scoreFrontPosition() {
+        //armLeft.setTargetPosition(33);
+        //armRight.setTargetPosition(33);
+        //armLeft.setPower(0.4);
+        //armRight.setPower(0.4);
+        //armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        wrist.setPosition(wristScoringPosition);
+    }
+
+
+    public void scoreBackPosition() {
+        //armLeft.setTargetPosition(33);
+        //armRight.setTargetPosition(33);
+        //armLeft.setPower(0.4);
+        //armRight.setPower(0.4);
+        //armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        wrist.setPosition(0);
+    }
+
+
+
+
+
+    public void moveWrist(double location) {
+        wrist.setPosition(wrist.getPosition() + location);
+    }
+
+
+
+    public void bothGrippers(double positionLeft, double positionRight) {
+        leftGrip.setPosition(positionLeft);
+        rightGrip.setPosition(positionRight);
+    }
+
+    public void rightGripper(double position) {
+        rightGrip.setPosition(position);
+    }
+
+    public void leftGripper(double position) {
+        leftGrip.setPosition(position);
+    }
+
+    public void telopArm(double power) {
+        if (Math.abs(power) > armManualDeadband) {
+            if (!manualMode) {
+                armLeft.setPower(0.0);
+                armRight.setPower(0.0);
+                armLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                armRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                manualMode = true;
+            }
+            armLeft.setPower(power);
+            armRight.setPower(power);
+        }
+        else {
+            if (manualMode) {
+                    armLeft.setTargetPosition(armLeft.getCurrentPosition());
+                    armRight.setTargetPosition(armRight.getCurrentPosition());
+                    armLeft.setPower(0.4);
+                    armRight.setPower(0.4);
+                    armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    manualMode = false;
+            }
+        }
+    }
+
     /**
      * Stop all motors.
      */
@@ -365,6 +455,20 @@ public class Robot1 {
      */
     public void showTelemetry(boolean show){
         showTelemetry = show;
+    }
+
+    public void telemetryData() {
+        // Arm Location
+        myOpMode.telemetry.addData("Arm Pos:",
+            "left = " + 
+            ((Integer)armLeft.getCurrentPosition()).toString() + 
+            ", right = " +
+            ((Integer)armRight.getCurrentPosition()).toString());
+
+        // Wrist Position
+        myOpMode.telemetry.addData("Wrist Location", wrist.getPosition());
+
+
     }
 }
 
