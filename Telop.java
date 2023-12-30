@@ -24,8 +24,6 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp(name="Telop", group = "Mr. Phil")
 public class Telop extends LinearOpMode
 {
-    private DcMotor leftLift = null;
-    private DcMotor rightLift = null;
     private Servo plane = null;
 
     final double SAFE_DRIVE_SPEED   = 0.8 ;
@@ -121,11 +119,11 @@ public class Telop extends LinearOpMode
 
             // Raise Poles (Get in Position to Hang)
             if (gamepad1.right_bumper) {
-                lift(0.8);
+                //lift(0.8);
             }
             // Lower Poles (Hang from the Pole)
             if (gamepad1.left_bumper) {
-                lift(-0.8);
+                //lift(-0.8);
             }
 
 
@@ -168,19 +166,8 @@ public class Telop extends LinearOpMode
         }
     }
 
-    public void lift(double num) {
-        for(int i = 0; i < 150000; i++) {
-            rightLift.setPower(num);
-            leftLift.setPower(num);
-        }
-        rightLift.setPower(-0);
-        leftLift.setPower(-0);
-    }
-
     public void initializeTelop() {
         plane = hardwareMap.get(Servo.class, "plane");
-        rightLift = hardwareMap.get(DcMotor.class, "strafeEncoder");
-        leftLift = hardwareMap.get(DcMotor.class, "driveEncoder");
     }
 
 }

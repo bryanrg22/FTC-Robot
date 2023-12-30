@@ -40,6 +40,7 @@ public class BottomBlue extends LinearOpMode
         robot.bothGrippers(0.3,0.3);
         justWait(5000);
         robot.bothGrippers(0,1);
+        robot.arm(200);
 
         // Wait for driver to press start
         telemetry.addData(">", "Touch Play to run Auto");

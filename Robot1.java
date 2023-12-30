@@ -79,8 +79,11 @@ public class Robot1 {
     private DcMotor driveEncoder;       //  the Axial (front/back) Odometry Module (may overlap with motor, or may not)
     private DcMotor strafeEncoder;      //  the Lateral (left/right) Odometry Module (may overlap with motor, or may not)
 
-    private DcMotor armLeft;
-    private DcMotor armRight;
+    private DcMotor armLeft1;
+    private DcMotor armLeft2;
+    private DcMotor armRight1;
+    private DcMotor armRight2;
+
     private Servo wrist;
     private Servo leftGrip;
     private Servo rightGrip;
@@ -120,8 +123,10 @@ public class Robot1 {
         rightFrontDrive = setupMotor("frontRight", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_USING_ENCODER);
         leftBackDrive  = setupMotor( "backLeft", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_USING_ENCODER);
         rightBackDrive = setupMotor( "backRight",DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_USING_ENCODER);
-        armLeft = setupMotor("armLeft", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        armRight = setupMotor("armRight", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        armLeft1 = setupMotor("armLeft1", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        armLeft2 = setupMotor("strafeEncoder", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        armRight1 = setupMotor("armRight1", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        armRight2 = setupMotor("driveEncoder", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         imu = myOpMode.hardwareMap.get(IMU.class, "imu");
 
         //  Connect to the encoder channels using the name of that channel.
@@ -329,22 +334,40 @@ public class Robot1 {
 
     public void pickUpPosition() {
         wrist.setPosition(0.05);
-        armLeft.setTargetPosition(0);
-        armRight.setTargetPosition(0);
-        armLeft.setPower(0.4);
-        armRight.setPower(0.4);
-        armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        armLeft1.setTargetPosition(0);
+        armLeft2.setTargetPosition(0);
+        armRight1.setTargetPosition(0);
+        armRight2.setTargetPosition(0);
+
+        armLeft1.setPower(0.4);
+        armLeft2.setPower(0.4);
+        armRight1.setPower(0.4);
+        armRight2.setPower(0.4);
+
+        armLeft1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armLeft2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armRight1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armRight2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     public void travelPosition() {
         wrist.setPosition(0.05);
-        armLeft.setTargetPosition(33);
-        armRight.setTargetPosition(33);
-        armLeft.setPower(0.4);
-        armRight.setPower(0.4);
-        armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        armLeft1.setTargetPosition(33);
+        armLeft2.setTargetPosition(33);
+        armRight1.setTargetPosition(33);
+        armRight2.setTargetPosition(33);
+
+        armLeft1.setPower(0.4);
+        armLeft2.setPower(0.4);
+        armRight1.setPower(0.4);
+        armRight2.setPower(0.4);
+
+        armLeft1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armLeft2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armRight1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armRight2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
      public void scoreFrontPosition() {
@@ -370,7 +393,22 @@ public class Robot1 {
 
 
 
+    public void arm(int num) {
+        armLeft1.setTargetPosition(num);
+        armLeft2.setTargetPosition(num);
+        armRight1.setTargetPosition(num);
+        armRight2.setTargetPosition(num);
+        
+        armLeft1.setPower(0.4);
+        armLeft2.setPower(0.4);
+        armRight1.setPower(0.4);
+        armRight2.setPower(0.4);
 
+        armLeft1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armLeft2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armRight1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armRight2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
 
     public void moveWrist(double location) {
         wrist.setPosition(wrist.getPosition() + location);
@@ -394,23 +432,41 @@ public class Robot1 {
     public void telopArm(double power) {
         if (Math.abs(power) > armManualDeadband) {
             if (!manualMode) {
-                armLeft.setPower(0.0);
-                armRight.setPower(0.0);
-                armLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                armRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                armLeft1.setPower(0.0);
+                armLeft2.setPower(0.0);
+                armRight1.setPower(0.0);
+                armRight2.setPower(0.0);
+
+                armLeft1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                armLeft2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                armRight1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                armRight2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
                 manualMode = true;
             }
-            armLeft.setPower(power);
-            armRight.setPower(power);
+            armLeft1.setPower(power);
+            armLeft2.setPower(power);
+            armRight1.setPower(power);
+            armRight2.setPower(power);
+            
         }
         else {
             if (manualMode) {
-                    armLeft.setTargetPosition(armLeft.getCurrentPosition());
-                    armRight.setTargetPosition(armRight.getCurrentPosition());
-                    armLeft.setPower(0.4);
-                    armRight.setPower(0.4);
-                    armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    armLeft1.setTargetPosition(armLeft1.getCurrentPosition());
+                    armLeft2.setTargetPosition(armLeft2.getCurrentPosition());
+                    armRight1.setTargetPosition(armRight1.getCurrentPosition());
+                    armRight2.setTargetPosition(armRight2.getCurrentPosition());
+
+                    armLeft1.setPower(0.4);
+                    armLeft2.setPower(0.4);
+                    armRight1.setPower(0.4);
+                    armRight2.setPower(0.4);
+
+                    armLeft1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    armLeft2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    armRight1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    armRight2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
                     manualMode = false;
             }
         }
@@ -461,9 +517,9 @@ public class Robot1 {
         // Arm Location
         myOpMode.telemetry.addData("Arm Pos:",
             "left = " + 
-            ((Integer)armLeft.getCurrentPosition()).toString() + 
+            ((Integer)armLeft1.getCurrentPosition()).toString() + 
             ", right = " +
-            ((Integer)armRight.getCurrentPosition()).toString());
+            ((Integer)armRight1.getCurrentPosition()).toString());
 
         // Wrist Position
         myOpMode.telemetry.addData("Wrist Location", wrist.getPosition());
