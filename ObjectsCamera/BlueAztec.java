@@ -28,7 +28,6 @@
  */
 
 package org.firstinspires.ftc.teamcode;
-
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -41,75 +40,45 @@ import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
 import java.util.List;
 
-/*
- * This OpMode illustrates the basics of TensorFlow Object Detection,
- * including Java Builder structures for specifying Vision parameters.
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
- */
-@TeleOp(name = "BlueAztec", group = "Concept")
-//@Disabled
-public class BlueAztec extends LinearOpMode {
+public class BlueAztec {
 
-    private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
-
-    // TFOD_MODEL_ASSET points to a model file stored in the project Asset location,
-    // this is only used for Android Studio when using models in Assets.
+    private static final boolean USE_WEBCAM = true;
     private static final String TFOD_MODEL_ASSET = "BlueAztec.tflite";
-    // TFOD_MODEL_FILE points to a model file stored onboard the Robot Controller's storage,
-    // this is used when uploading models directly to the RC using the model upload interface.
     private static final String TFOD_MODEL_FILE = "/sdcard/FIRST/tflitemodels/myCustomModel.tflite";
-    // Define the labels recognized in the model for TFOD (must be in training order!)
     private static final String[] LABELS = {
        "blueaztec",
     };
 
-    /**
-     * The variable to store our instance of the TensorFlow Object Detection processor.
-     */
+    private static double x_coordinate;
+    private static double y_coordinate;
+    private LinearOpMode myOpMode;
     private TfodProcessor tfod;
-
-    /**
-     * The variable to store our instance of the vision portal.
-     */
     private VisionPortal visionPortal;
 
-    @Override
-    public void runOpMode() {
 
+    public BlueAztec (LinearOpMode opmode) {
+        myOpMode = opmode;
+    }
+
+    public void initializeCamera() {
         initTfod();
 
         // Wait for the DS start button to be touched.
-        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch Play to start OpMode");
-        telemetry.update();
-        waitForStart();
+        myOpMode.telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
+        myOpMode.telemetry.addData(">", "Touch Play to start OpMode");
+        myOpMode.telemetry.update();
+    }  
 
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
+    public void detectAztec() {
+        telemetryTfod();
+    }
 
-                telemetryTfod();
-
-                // Push telemetry to the Driver Station.
-                telemetry.update();
-
-                // Save CPU resources; can resume streaming when needed.
-                if (gamepad1.dpad_down) {
-                    visionPortal.stopStreaming();
-                } else if (gamepad1.dpad_up) {
-                    visionPortal.resumeStreaming();
-                }
-
-                // Share the CPU.
-                sleep(20);
-            }
-        }
-
-        // Save more CPU resources when camera is no longer needed.
+    public void stopCamera() {
         visionPortal.close();
+    }
 
-    }   // end runOpMode()
+
+
 
     /**
      * Initialize the TensorFlow Object Detection processor.
@@ -142,7 +111,7 @@ public class BlueAztec extends LinearOpMode {
 
         // Set the camera (webcam vs. built-in RC phone camera).
         if (USE_WEBCAM) {
-            builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+            builder.setCamera(myOpMode.hardwareMap.get(WebcamName.class, "Webcam 1"));
         } else {
             builder.setCamera(BuiltinCameraDirection.BACK);
         }
@@ -181,31 +150,32 @@ public class BlueAztec extends LinearOpMode {
     private void telemetryTfod() {
 
         List<Recognition> currentRecognitions = tfod.getRecognitions();
-        telemetry.addData("# Objects Detected", currentRecognitions.size());
+        myOpMode.telemetry.addData("# Objects Detected", currentRecognitions.size());
 
         // Step through the list of recognitions and display info for each one.
         for (Recognition recognition : currentRecognitions) {
-            double x = (recognition.getLeft() + recognition.getRight()) / 2 ;
-            double y = (recognition.getTop()  + recognition.getBottom()) / 2 ;
+            x_coordinate = (recognition.getLeft() + recognition.getRight()) / 2 ;
+            y_coordinate = (recognition.getTop()  + recognition.getBottom()) / 2 ;
 
-            telemetry.addData(""," ");
-            telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
-            telemetry.addData("- Position", "%.0f / %.0f", x, y);
-            telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
+            myOpMode.telemetry.addData(""," ");
+            myOpMode.telemetry.addData("Image", "%s (%.0f %% Conf.)", recognition.getLabel(), recognition.getConfidence() * 100);
+            myOpMode.telemetry.addData("- Position", "%.0f / %.0f", x_coordinate, y_coordinate);
+            myOpMode.telemetry.addData("- Size", "%.0f x %.0f", recognition.getWidth(), recognition.getHeight());
+            myOpMode.telemetry.update();
         }   // end for() loop
 
     }   // end method telemetryTfod()
 
-    private double get_x() {
-        return (recognition.getLeft() + recognition.getRight()) / 2;
+    public double get_x() {
+        return x_coordinate;
     }
 
     private double get_y() {
-        return (recognition.getTop()  + recognition.getBottom()) / 2;
+        return y_coordinate;
     }
 
     private int math(int a, int b) {
         return a + b;
     }
 
-}   // end class
+}
