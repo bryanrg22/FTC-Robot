@@ -8,7 +8,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+//import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -142,10 +142,10 @@ public class Robot1 {
         }
 
         // Tell the software how the Control Hub is mounted on the robot to align the IMU XYZ axes correctly
-        RevHubOrientationOnRobot orientationOnRobot =
-                new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
-                                             RevHubOrientationOnRobot.UsbFacingDirection.UP);
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
+        //RevHubOrientationOnRobot orientationOnRobot =
+        //        new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+        //                                     RevHubOrientationOnRobot.UsbFacingDirection.UP);
+        //imu.initialize(new IMU.Parameters(orientationOnRobot));
 
         // zero out all the odometry readings.
         resetOdometry();
@@ -180,11 +180,11 @@ public class Robot1 {
         driveDistance = (rawDriveOdometer - driveOdometerOffset) * ODOM_INCHES_PER_COUNT;
         strafeDistance = (rawStrafeOdometer - strafeOdometerOffset) * ODOM_INCHES_PER_COUNT;
 
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        //YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
         AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
 
-        rawHeading  = orientation.getYaw(AngleUnit.DEGREES);
-        heading     = rawHeading - headingOffset;
+        //rawHeading  = orientation.getYaw(AngleUnit.DEGREES);
+        //heading     = rawHeading - headingOffset;
         turnRate    = angularVelocity.zRotationRate;
 
         if (showTelemetry) {
@@ -464,7 +464,7 @@ public class Robot1 {
      */
     public void resetHeading() {
         readSensors();
-        headingOffset = rawHeading;
+        //headingOffset = rawHeading;
         yawController.reset(0);
         heading = 0;
     }
