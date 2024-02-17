@@ -73,7 +73,6 @@
              while (b == 0) {
                  robot.bothGrippers(0,1);
                  justWait(1000);
-                 robot.travelPosition();
                  b++;
              }
              waitForStart();
@@ -92,21 +91,43 @@
  
              // read joystick values and scale according to limits set at top of this file
              double manualArmPower;
-             double drive  = gamepad1.left_stick_y * SAFE_DRIVE_SPEED;      //  Fwd/back on left stick
-             double strafe = gamepad1.left_stick_x * SAFE_STRAFE_SPEED;     //  Left/Right on left stick
-             double yaw    = gamepad1.right_stick_x * SAFE_YAW_SPEED;       //  Rotate on right stick
-             double wristTurn  =  -gamepad2.right_stick_y;
+             double drive  = -gamepad1.left_stick_y * SAFE_DRIVE_SPEED;      //  Fwd/back on left stick
+             double strafe = -gamepad1.left_stick_x * SAFE_STRAFE_SPEED;     //  Left/Right on left stick
+             double yaw    = -gamepad1.right_stick_x * SAFE_YAW_SPEED;       //  Rotate on right stick
+             //double wristTurn  =  -gamepad2.right_stick_y;
              
              //  Drive the wheels based on the desired axis motions
+             telemetry.addData("Yaw:", yaw);
+             telemetry.update();
+             
              robot.moveRobot(drive, strafe, yaw);
  
              // Move Wrist
-             double wristPositionAnolog = Range.clip(wristTurn, -1.0, 1.0) ;
-             robot.moveWrist(wristPositionAnolog * 0.01);
+             
+             //double wristPositionAnolog = Range.clip(wristTurn, 1, 200);
+             
+             if (gamepad2.dpad_up) {
+                robot.moveWrist(-1);
+             }
+             
+             else if (gamepad2.dpad_down) {
+                robot.moveWrist(1); 
+             }
              
              // Arm Movement
-             manualArmPower = gamepad2.right_trigger - gamepad2.left_trigger;
-             robot.telopArm(manualArmPower);
+            
+            manualArmPower = (gamepad1.left_trigger - gamepad1.right_trigger);
+            robot.moveArm(manualArmPower);
+            
+            manualArmPower = (gamepad2.right_trigger - gamepad2.left_trigger) * .75;
+            
+            if (gamepad2.right_trigger > 0) {
+                robot.moveWrist(gamepad2.right_trigger);
+            }
+            else if (gamepad2.left_trigger > 0) {
+                robot.moveWrist(-gamepad2.left_trigger);
+            }
+             
                  
              if (gamepad1.a) {
                  robot.travelPosition();
@@ -128,11 +149,11 @@
  
              // Raise Poles (Get in Position to Hang)
              if (gamepad1.right_bumper) {
-                 lift(0.8);
+                 lift(1);
              }
              // Lower Poles (Hang from the Pole)
              if (gamepad1.left_bumper) {
-                 lift(-0.8);
+                 lift(-1);
              }
  
  
@@ -142,7 +163,7 @@
              }
              // Plane Luanch Position
              if (gamepad2.dpad_left) {
-                 plane.setPosition(0.3);
+                 plane.setPosition(-0.3);
              }
  
  

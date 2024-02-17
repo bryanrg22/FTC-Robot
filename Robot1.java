@@ -69,7 +69,11 @@
      public ProportionalControl yawController       = new ProportionalControl(YAW_GAIN, YAW_ACCEL, YAW_MAX_AUTO, YAW_TOLERANCE,YAW_DEADBAND, true);
  
      // ---  Private Members
- 
+        // drive motor position variables
+    private int lfPos; private int rfPos; private int lrPos; private int rrPos;
+    private double clicksPerInch = 87.5; // empirically measured
+    private double clicksPerDeg = 21.94; // empirically measured
+
      // Hardware interface Objects
      private DcMotor leftFrontDrive;     //  control the left front drive wheel
      private DcMotor rightFrontDrive;    //  control the right front drive wheel
@@ -80,9 +84,8 @@
      private DcMotor strafeEncoder;      //  the Lateral (left/right) Odometry Module (may overlap with motor, or may not)
  
      private DcMotor armLeft;
-     private DcMotor armRight;
- 
-     private Servo wrist;
+    
+     public DcMotor arm;
      private Servo leftGrip;
      private Servo rightGrip;
  
@@ -113,26 +116,25 @@
       */
      public void initialize(boolean showTelemetry)
      {
-         // Initialize the hardware variables. Note that the strings used to 'get' each
-         // motor/device must match the names assigned during the robot configuration.
+        // Initialize the hardware variables. Note that the strings used to 'get' each
+        // motor/device must match the names assigned during the robot configuration.
  
          // !!!  Set the drive direction to ensure positive power drives each wheel forward.
-         leftFrontDrive  = setupMotor("frontLeft", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_USING_ENCODER);
-         rightFrontDrive = setupMotor("frontRight", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_USING_ENCODER);
-         leftBackDrive  = setupMotor( "backLeft", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_USING_ENCODER);
-         rightBackDrive = setupMotor( "backRight",DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_USING_ENCODER);
-         armLeft = setupMotor("armLeft", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-         armRight = setupMotor("armRight", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-         imu = myOpMode.hardwareMap.get(IMU.class, "imu");
+        leftFrontDrive  = setupMotor("frontLeft", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFrontDrive = setupMotor("frontRight", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBackDrive  = setupMotor( "backLeft", DcMotor.Direction.REVERSE, DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBackDrive = setupMotor( "backRight",DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_USING_ENCODER);
+        armLeft = setupMotor("armLift", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        imu = myOpMode.hardwareMap.get(IMU.class, "imu");
  
-         //  Connect to the encoder channels using the name of that channel.
-         driveEncoder = myOpMode.hardwareMap.get(DcMotor.class, "driveEncoder");
-         strafeEncoder = myOpMode.hardwareMap.get(DcMotor.class, "strafeEncoder");
+        //  Connect to the encoder channels using the name of that channel.
+        driveEncoder = myOpMode.hardwareMap.get(DcMotor.class, "driveEncoder");
+        strafeEncoder = myOpMode.hardwareMap.get(DcMotor.class, "strafeEncoder");
  
-         // Set the wrist and grippers.
-         wrist = myOpMode.hardwareMap.get(Servo.class, "wrist");
-         rightGrip = myOpMode.hardwareMap.get(Servo.class, "rightGrip");
-         leftGrip = myOpMode.hardwareMap.get(Servo.class, "leftGrip");
+        // Set the wrist and grippers.
+        arm = setupMotor("arm", DcMotor.Direction.FORWARD, DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightGrip = myOpMode.hardwareMap.get(Servo.class, "rightGrip");
+        leftGrip = myOpMode.hardwareMap.get(Servo.class, "leftGrip");
  
  
          // Set all hubs to use the AUTO Bulk Caching mode for faster encoder reads
@@ -209,7 +211,8 @@
          resetOdometry();
  
          driveController.reset(distanceInches, power);   // achieve desired drive distance
-         strafeController.reset(0);              // Maintain zero strafe drift                       // Maintain last turn heading
+         strafeController.reset(0);
+         yawController.reset();    // Maintain zero strafe drift                       // Maintain last turn heading
          holdTimer.reset();
  
          while (myOpMode.opModeIsActive() && readSensors()){
@@ -261,63 +264,60 @@
          }
          stopRobot();
      }
-     
-     public void turnTo(double headingDeg, double power, double holdTime) {
- 
-         yawController.reset(headingDeg, power);
-         while (myOpMode.opModeIsActive() && readSensors()) {
- 
-             // implement desired axis powers
-             moveRobot(0, 0, yawController.getOutput(heading));
- 
-             // Time to exit?
-             if (yawController.inPosition()) {
-                 if (holdTimer.time() > holdTime) {
-                     break;   // Exit loop if we are in position, and have been there long enough.
-                 }
-             } else {
-                 holdTimer.reset();
-             }
-             myOpMode.sleep(10);
-         }
-         stopRobot();
-     }
- 
+    
+    public void turnTo(double headingDeg, double power, double holdTime) {
+        yawController.reset(headingDeg, power);
+        holdTimer.reset();
+
+        while (myOpMode.opModeIsActive() && readSensors()) {
+            double turnPower = yawController.getOutput(headingDeg);
+
+            // implement desired axis powers
+            moveRobot(0, 0, turnPower);
+
+            // Time to exit?
+            if (yawController.inPosition() && holdTimer.time() > holdTime) {
+                break;   // Exit loop if we are in position, and have been there long enough.
+            }
+
+            myOpMode.sleep(10);
+        }
+        stopRobot();
+    }
+    
+    /*
+    public void turnClockwise(int whatAngle, double speed) {
+        // whatAngle is in degrees. A negative whatAngle turns counterclockwise.
+        double turnPower = yawController.getOutput(heading);
+        // fetch motor positions
+        lfPos = leftFrontDrive.getCurrentPosition();
+        rfPos = rightFrontDrive.getCurrentPosition();
+        lrPos = leftBackDrive.getCurrentPosition();
+        rrPos = rightBackDrive.getCurrentPosition();
+
+        // calculate new targets
+        lfPos += whatAngle * clicksPerDeg;
+        rfPos -= whatAngle * clicksPerDeg;
+        lrPos += whatAngle * clicksPerDeg;
+        rrPos -= whatAngle * clicksPerDeg;
+
+        // move robot to new position
+        leftFrontDrive.setTargetPosition(lfPos);
+        rightFrontDrive.setTargetPosition(rfPos);
+        leftBackDrive.setTargetPosition(lrPos);
+        rightBackDrive.setTargetPosition(rrPos);
+        leftFrontDrive.setPower(speed);
+        rightFrontDrive.setPower(speed);
+        leftBackDrive.setPower(speed);
+        rightBackDrive.setPower(speed);
+    /* 
+    }
      /**
       * Rotate to an absolute heading/direction
       * @param headingDeg  Heading to obtain.  +ve = CCW, -ve = CW.
       * @param power Maximum power to apply.  This number should always be positive.
       * @param holdTime Minimum time (sec) required to hold the final position.  0 = no hold.
       */
-     public void turnRight(double time) {
-         int i = 0;
-         while (i < time) {
-             rightFrontDrive.setPower(-0.3);
-             rightBackDrive.setPower(0.3);
-             leftFrontDrive.setPower(-0.3);
-             leftBackDrive.setPower(0.3);
-         }
-         rightFrontDrive.setPower(0);
-         rightBackDrive.setPower(0);
-         leftFrontDrive.setPower(0);
-         leftBackDrive.setPower(0);
-         
-     }
-     
-     public void turnLeft(double time) {
-         int i = 0;
-         while (i < time) {
-             leftFrontDrive.setPower(-0.3);
-             leftBackDrive.setPower(0.3);
-             rightFrontDrive.setPower(-0.3);
-             rightBackDrive.setPower(0.3);
-             rightFrontDrive.setPower(0);
-             rightBackDrive.setPower(0);
-             leftFrontDrive.setPower(0);
-             leftBackDrive.setPower(0);
-             
-         }
-     }
  
  
      //  ########################  Low level control functions.  ###############################
@@ -351,29 +351,26 @@
  
  
      public void pickUpPosition() {
-         wrist.setPosition(0.05);
  
-         armLeft.setTargetPosition(0);
-         armRight.setTargetPosition(0);
+         arm.setTargetPosition(0);
  
-         armLeft.setPower(0.4);
-         armRight.setPower(0.4);
+         arm.setPower(0.4);
+        
  
-         armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-         armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        
      }
  
      public void travelPosition() {
-         wrist.setPosition(0.05);
  
-         armLeft.setTargetPosition(33);
-         armRight.setTargetPosition(33);
+         arm.setTargetPosition(33);
+        
  
-         armLeft.setPower(0.4);
-         armRight.setPower(0.4);
+         arm.setPower(0.4);
+         
  
-         armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-         armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        
      }
  
       public void scoreFrontPosition() {
@@ -383,7 +380,7 @@
          //armRight.setPower(0.4);
          //armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
          //armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-         wrist.setPosition(wristScoringPosition);
+        
      }
  
  
@@ -394,26 +391,107 @@
          //armRight.setPower(0.4);
          //armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
          //armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-         wrist.setPosition(0);
-     }
- 
- 
- 
-     public void arm(int num) {
-         armLeft.setTargetPosition(num);
-         armRight.setTargetPosition(num);
          
+     }
+     
+     public void moveArm(double manualArmPower) {
+            if (Math.abs(manualArmPower) > armManualDeadband) {
+                if (!manualMode) {
+                    armLeft.setPower(0.0);
+                    armLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    manualMode = true;
+                }
+                armLeft.setPower(manualArmPower);
+            }
+            else {
+                if (manualMode) {
+                    armLeft.setTargetPosition(armLeft.getCurrentPosition());
+                    armLeft.setPower(.80);
+                    armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    manualMode = false;
+                }
+            } 
+     }
+     
+     public void startingPosition() {
+         armLeft.setTargetPosition(-57);
+        
+ 
          armLeft.setPower(0.4);
-         armRight.setPower(0.4);
+         
  
          armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-         armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-     }
+        
+        
+        arm.setTargetPosition(1028);
+        
  
-     public void moveWrist(double location) {
-         wrist.setPosition(wrist.getPosition() + location);
-     }
+         arm.setPower(0.4);
+         
  
+         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+     }
+     
+     public void beingAuto() {
+        arm.setTargetPosition(0);
+        
+ 
+        arm.setPower(0.8);
+         
+ 
+        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+     }
+     
+     public void scoringPosition() {
+        armLeft.setTargetPosition(-52);
+        
+ 
+         armLeft.setPower(0.4);
+         
+ 
+         armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        
+        
+        arm.setTargetPosition(500);
+        
+ 
+         arm.setPower(0.4);
+         
+ 
+         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+     }
+     
+     public void boardscore() {
+         arm.setTargetPosition(347);
+        
+ 
+         arm.setPower(0.4);
+         
+ 
+         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+     }
+     
+ 
+     public void moveWrist(double manualArmPower) {
+         
+        if (Math.abs(manualArmPower) > armManualDeadband) {
+                if (!manualMode) {
+                    arm.setPower(0.0);
+                    arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    manualMode = true;
+                }
+                arm.setPower(manualArmPower);
+            }
+            else {
+                if (manualMode) {
+                    arm.setTargetPosition(arm.getCurrentPosition());
+                    arm.setPower(.80);
+                    arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    manualMode = false;
+                }
+            }
+        
+     }
  
  
      public void bothGrippers(double positionLeft, double positionRight) {
@@ -432,28 +510,26 @@
      public void telopArm(double power) {
          if (Math.abs(power) > armManualDeadband) {
              if (!manualMode) {
-                 armLeft.setPower(0.0);
-                 armRight.setPower(0.0);
+                 arm.setPower(0.0);
  
-                 armLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                 armRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                 arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
  
                  manualMode = true;
              }
-             armLeft.setPower(power);
-             armRight.setPower(power);
+             arm.setPower(power);
+             
              
          }
          else {
              if (manualMode) {
-                     armLeft.setTargetPosition(armLeft.getCurrentPosition());
-                     armRight.setTargetPosition(armRight.getCurrentPosition());
+                     arm.setTargetPosition(arm.getCurrentPosition());
+                     
  
-                     armLeft.setPower(0.4);
-                     armRight.setPower(0.4);
+                     arm.setPower(0.4);
+                    
  
-                     armLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                     armRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                     arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                     
  
                      manualMode = false;
              }
@@ -504,13 +580,15 @@
      public void telemetryData() {
          // Arm Location
          myOpMode.telemetry.addData("Arm Pos:",
-             "left = " + 
-             ((Integer)armLeft.getCurrentPosition()).toString() + 
-             ", right = " +
-             ((Integer)armRight.getCurrentPosition()).toString());
- 
+             "= " + 
+             ((Integer)armLeft.getCurrentPosition()).toString());
+             
+        myOpMode.telemetry.addData("Wrist Pos:",
+             "= " + 
+             ((Integer)arm.getCurrentPosition()).toString());
+             
          // Wrist Position
-         myOpMode.telemetry.addData("Wrist Location", wrist.getPosition());
+         
  
  
      }
@@ -525,102 +603,102 @@
   * It also implements an acceleration limit, and a max power output.
   */
  class ProportionalControl {
-     double  lastOutput;
-     double  gain;
-     double  accelLimit;
-     double  defaultOutputLimit;
-     double  liveOutputLimit;
-     double  setPoint;
-     double  tolerance;
-     double deadband;
-     boolean circular;
-     boolean inPosition;
-     ElapsedTime cycleTime = new ElapsedTime();
- 
-     public ProportionalControl(double gain, double accelLimit, double outputLimit, double tolerance, double deadband, boolean circular) {
-         this.gain = gain;
-         this.accelLimit = accelLimit;
-         this.defaultOutputLimit = outputLimit;
-         this.liveOutputLimit = outputLimit;
-         this.tolerance = tolerance;
-         this.deadband = deadband;
-         this.circular = circular;
-         reset(0.0);
-     }
- 
-     /**
-      * Determines power required to obtain the desired setpoint value based on new input value.
-      * Uses proportional gain, and limits rate of change of output, as well as max output.
-      * @param input  Current live control input value (from sensors)
-      * @return desired output power.
-      */
-     public double getOutput(double input) {
-         double error = setPoint - input;
-         double dV = cycleTime.seconds() * accelLimit;
-         double output;
- 
-         // normalize to +/- 180 if we are controlling heading
-         if (circular) {
-             while (error > 180)  error -= 360;
-             while (error <= -180) error += 360;
-         }
- 
-         inPosition = (Math.abs(error) < tolerance);
- 
-         // Prevent any very slow motor output accumulation
-         if (Math.abs(error) <= deadband) {
-             output = 0;
-         } else {
-             // calculate output power using gain and clip it to the limits
-             output = (error * gain);
-             output = Range.clip(output, -liveOutputLimit, liveOutputLimit);
- 
-             // Now limit rate of change of output (acceleration)
-             if ((output - lastOutput) > dV) {
-                 output = lastOutput + dV;
-             } else if ((output - lastOutput) < -dV) {
-                 output = lastOutput - dV;
-             }
-         }
- 
-         lastOutput = output;
-         cycleTime.reset();
-         return output;
-     }
- 
-     public boolean inPosition(){
-         return inPosition;
-     }
-     public double getSetpoint() {return setPoint;}
- 
-     /**
-      * Saves a new setpoint and resets the output power history.
-      * This call allows a temporary power limit to be set to override the default.
-      * @param setPoint
-      * @param powerLimit
-      */
-     public void reset(double setPoint, double powerLimit) {
-         liveOutputLimit = Math.abs(powerLimit);
-         this.setPoint = setPoint;
-         reset();
-     }
- 
-     /**
-      * Saves a new setpoint and resets the output power history.
-      * @param setPoint
-      */
-     public void reset(double setPoint) {
-         liveOutputLimit = defaultOutputLimit;
-         this.setPoint = setPoint;
-         reset();
-     }
- 
-     /**
-      * Leave everything else the same, Just restart the acceleration timer and set output to 0
-      */
-     public void reset() {
-         cycleTime.reset();
-         inPosition = false;
-         lastOutput = 0.0;
-     }
+    double  lastOutput;
+    double  gain;
+    double  accelLimit;
+    double  defaultOutputLimit;
+    double  liveOutputLimit;
+    double  setPoint;
+    double  tolerance;
+    double deadband;
+    boolean circular;
+    boolean inPosition;
+    ElapsedTime cycleTime = new ElapsedTime();
+
+    public ProportionalControl(double gain, double accelLimit, double outputLimit, double tolerance, double deadband, boolean circular) {
+        this.gain = gain;
+        this.accelLimit = accelLimit;
+        this.defaultOutputLimit = outputLimit;
+        this.liveOutputLimit = outputLimit;
+        this.tolerance = tolerance;
+        this.deadband = deadband;
+        this.circular = circular;
+        reset(0.0);
+    }
+
+    /**
+     * Determines power required to obtain the desired setpoint value based on new input value.
+     * Uses proportional gain, and limits rate of change of output, as well as max output.
+     * @param input  Current live control input value (from sensors)
+     * @return desired output power.
+     */
+    public double getOutput(double input) {
+        double error = setPoint - input;
+        double dV = cycleTime.seconds() * accelLimit;
+        double output;
+
+        // normalize to +/- 180 if we are controlling heading
+        if (circular) {
+            while (error > 180)  error -= 360;
+            while (error <= -180) error += 360;
+        }
+
+        inPosition = (Math.abs(error) < tolerance);
+
+        // Prevent any very slow motor output accumulation
+        if (Math.abs(error) <= deadband) {
+            output = 0;
+        } else {
+            // calculate output power using gain and clip it to the limits
+            output = (error * gain);
+            output = Range.clip(output, -liveOutputLimit, liveOutputLimit);
+
+            // Now limit rate of change of output (acceleration)
+            if ((output - lastOutput) > dV) {
+                output = lastOutput + dV;
+            } else if ((output - lastOutput) < -dV) {
+                output = lastOutput - dV;
+            }
+        }
+
+        lastOutput = output;
+        cycleTime.reset();
+        return output;
+    }
+
+    public boolean inPosition(){
+        return inPosition;
+    }
+    public double getSetpoint() {return setPoint;}
+
+    /**
+     * Saves a new setpoint and resets the output power history.
+     * This call allows a temporary power limit to be set to override the default.
+     * @param setPoint
+     * @param powerLimit
+     */
+    public void reset(double setPoint, double powerLimit) {
+        liveOutputLimit = Math.abs(powerLimit);
+        this.setPoint = setPoint;
+        reset();
+    }
+
+    /**
+     * Saves a new setpoint and resets the output power history.
+     * @param setPoint
+     */
+    public void reset(double setPoint) {
+        liveOutputLimit = defaultOutputLimit;
+        this.setPoint = setPoint;
+        reset();
+    }
+
+    /**
+     * Leave everything else the same, Just restart the acceleration timer and set output to 0
+     */
+    public void reset() {
+        cycleTime.reset();
+        inPosition = false;
+        lastOutput = 0.0;
+    }
  }
