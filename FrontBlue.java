@@ -73,7 +73,7 @@
              robot.beingAuto();
              justWait(3000);
              
-             if (front < 25){
+             if (front < 30){
                  // To Place
                  robot.drive(25.5,0.8,0.25);
                  sleep(500);
@@ -87,6 +87,10 @@
                  turnLeft(12500);
                  justWait(3000);
                  robot.strafe(-3,0.8,0.25);
+                 justWait(500);
+                 robot.drive(5,0.8,0.25);
+                 justWait(500);
+                 
                  robot.boardscore();
                  justWait(2000);
                  robot.rightGripper(-1);
@@ -110,43 +114,59 @@
                  
                  if (right < 6) { 
                      // To Place
-                     turnRight(7000); // Change Value
-
-
                      
-                     justWait(500);
-                     robot.leftGripper(1);
-                     justWait(1000);
-                     robot.leftGripper(-1);
                      
-
-
-                    turnLeft(7000); // Change Value
                     justWait(500);
-                    robot.drive(-3.5,1,0.25);
+                    robot.drive(11,1,0.25);
+                    robot.strafe(5,1,0.25);
+                    justWait(500);
+                    
+                    turnRight(12500); // Change Value
                      
-                     
-                     
-                     
-                     
+                    justWait(500);
+                    robot.drive(6.5,1,0.25);
+
+                    robot.rightGripper(-1);
+                    justWait(500);
+                    robot.drive(-6.5,1,0.25);
+                    justWait(500);
+                    robot.strafe(-5,1,0.25);
+                    robot.rightGripper(1);
+
+                    justWait(500);
+
+                    turnLeft(12500); // Change Value
+
+                    justWait(500);
+                
+                   robot.drive(-6,1,0.25);
+                   
+                   justWait(1000);
+                   
+
                      
                      // To Score
-                 robot.scoringPosition();
-                 robot.strafe(32, 8.0,0.25);
+                robot.scoringPosition();
+                 robot.strafe(32, 1,0.25);
                  turnLeft(12500);
                  justWait(3000);
                  robot.strafe(-3,0.8,0.25);
+                 justWait(500);
+                 robot.drive(5,1,0.25);
+                 justWait(500);
+                 
                  robot.boardscore();
                  justWait(2000);
                  robot.rightGripper(-1);
                  justWait(2000);
-                 robot.drive(-2,0.8,0.25);
+                 robot.drive(-2,1,0.25);
                  robot.rightGripper(1);
                  justWait(2000);
-                 robot.strafe(23,0.8,0.25);
+                 robot.strafe(23,1,0.25);
                  justWait(2000);
                  robot.scoringPosition();
-                 robot.drive(11,0.8,0.25);
+                 robot.drive(11,1,0.25);
+                     
                  }
 
                  else{
@@ -165,6 +185,8 @@
                      robot.strafe(23.5, 1,0.25);
                      turnLeft(12500);
                      justWait(2000);
+                     robot.drive(3,0.8,0.25);
+                     justWait(500);
                      robot.boardscore();
                      justWait(1000);
                      robot.rightGripper(-1);
@@ -197,7 +219,7 @@
          int i = 0;
          while (i < num) {
              robot.moveRobot(0,0,0.9);
-             time++;
+             i++;
          }
          robot.moveRobot(0,0,0);
      }
@@ -206,7 +228,7 @@
          int i = 0;
          while (i < num) {
              robot.moveRobot(0,0,-0.9);
-             time++;
+             i++;
          }
          robot.moveRobot(0,0,0);
      }
