@@ -116,17 +116,17 @@
              
              // Arm Movement
             
-            manualArmPower = (gamepad1.left_trigger - gamepad1.right_trigger);
+            manualArmPower = (gamepad2.left_trigger - gamepad2.right_trigger);
             robot.moveArm(manualArmPower);
             
-            manualArmPower = (gamepad2.right_trigger - gamepad2.left_trigger) * .75;
+            if (gamepad2.right_stick_y < 0) {
+                robot.moveWrist(gamepad2.right_stick_y * -0.1);
+            }
             
-            if (gamepad2.right_trigger > 0) {
-                robot.moveWrist(gamepad2.right_trigger);
+            else if (gamepad2.right_stick_y > 0) {
+                robot.moveWrist(gamepad2.right_stick_y * -1);
             }
-            else if (gamepad2.left_trigger > 0) {
-                robot.moveWrist(-gamepad2.left_trigger);
-            }
+            
              
                  
              if (gamepad1.a) {

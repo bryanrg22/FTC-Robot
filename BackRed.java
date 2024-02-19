@@ -45,6 +45,7 @@
      @Override public void runOpMode()
      {
          // Initialize the robot hardware & Turn on telemetry
+         
          robot.initialize(true);
          sensors.initializeSensors();
  
@@ -69,20 +70,37 @@
          // Run Auto if stop was not pressed.
          if (opModeIsActive())
          {
+             
              double front = sensors.frontSensor();
+             justWait(200);
              robot.beingAuto();
              justWait(3000);
              
-             if (front < 25){
+             if (front < 30){
                  // To Place
                  robot.drive(25.5,0.8,0.25);
                  sleep(500);
-                 robot.leftGripper(1);
+                 robot.rightGripper(-1);
                  sleep(500);
-                 robot.leftGripper(-1);
+                 robot.rightGripper(1);
                  
-                 // To Score
-                 robot.scoringPosition();
+                 justWait(1000);
+                 robot.strafe(14,1,0.25);
+                 justWait(1000);
+                 robot.drive(29,1,0.25);
+                 
+                 justWait(1000);
+                 
+                 robot.strafe(-90,1,0.25);
+                 justWait(1000);
+                 turnRight(15000);
+                 justWait(1000);
+                 robot.drive(12,0.8,0.25);
+                 
+                 robot.leftGripper(-1);
+                 justWait(1000);
+                 robot.leftGripper(1);
+                 justWait(1000);
 
 
 
@@ -98,46 +116,73 @@
                  
                  if (right < 6) { 
                      // To Place
-                     turnRight(7000); // Change Value
-
-
                      
-                     justWait(500);
-                     robot.leftGripper(1);
-                     justWait(1000);
-                     robot.leftGripper(-1);
                      
-
-
-                    turnLeft(7000); // Change Value
                     justWait(500);
-                    robot.drive(-3.5,1,0.25);
+                    turnRight(7000); // Change Value
                      
-                     
-                     
-                     
-                     
-                     
-                     // To Score
-                 robot.scoringPosition();
+                    justWait(500);
+                    robot.leftGripper(1);
+                    justWait(500);
+                    robot.leftGripper(-1);
+                    
+                   turnLeft(7000); // Change Value
+                   justWait(500);
+                   
+                   robot.drive(9,1,0.25);
+
+                   
+                   
+                   robot.drive(28.5,1,0.25);
                  
-
-
+                    justWait(1000);
+                 
+                    robot.strafe(-81,1,0.25);
+                    justWait(1000);
+                    turnRight(12500);
+                    justWait(1000);
+                    robot.drive(10,0.8,0.25);
+                 
+                    robot.rightGripper(-1);
+                    justWait(1000);
+                    robot.rightGripper(1);
+                    justWait(1000); 
+                    
 
                  }
 
                  else{
                      // To Place
+                     
+                     
                      justWait(500);
-                     robot.strafe(9, 8.0,0.25);
+                     robot.strafe(-13, 1,0.25);
                      justWait(500);
-                     robot.leftGripper(1);
+                     robot.rightGripper(-1);
                      justWait(1000);
-                     robot.leftGripper(-1);
+                     robot.rightGripper(1);
+                     robot.strafe(13, 1,0.25);
+                     
+                    justWait(1000);
+                    
+                    
+                    justWait(1000);
+                    robot.drive(28.5,1,0.25);
+                    
+                    justWait(1000);
+                    
+                    robot.strafe(-81,1,0.25);
+                    justWait(1000);
+                    turnRight(12500);
+                    justWait(1000);
+                    robot.drive(10,0.8,0.25);
+                    
+                    robot.leftGripper(1);
+                    justWait(1000);
+                    robot.leftGripper(-1);
+                    justWait(1000);
                      
                      
-                     // To Score
-                     robot.scoringPosition();
                      
 
                      
@@ -162,7 +207,7 @@
          int i = 0;
          while (i < num) {
              robot.moveRobot(0,0,0.9);
-             time++;
+             i++;
          }
          robot.moveRobot(0,0,0);
      }
@@ -171,7 +216,7 @@
          int i = 0;
          while (i < num) {
              robot.moveRobot(0,0,-0.9);
-             time++;
+             i++;
          }
          robot.moveRobot(0,0,0);
      }
