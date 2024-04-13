@@ -179,17 +179,14 @@
              if (gamepad2.left_bumper) {
                  robot.leftGripper(0.3);
              }  
-             // Left Close
+             
+             
              if (gamepad2.a) {
-                 robot.leftGripper(0);
+                 robot.Gripper(0);
              }
-             // Right Open
-             if (gamepad2.right_bumper) {
-                 robot.rightGripper(0.3);
-             }
-             // Right Close
+             
              if (gamepad2.b) {
-                 robot.rightGripper(1);
+                 robot.Gripper(1);
              }
              
              robot.telemetryData();
